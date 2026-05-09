@@ -4,6 +4,40 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-05-10
+
+Repo repositioned from a single-skill project (`claude-skill-release-sop`) into a **multi-skill collection** (`git-skill`) for Git-host workflows (GitHub / GitLab / Gitea). `release-sop` is the first skill; `pr-review`, `issue-triage`, `changelog-bot`, `hotfix-flow` are planned.
+
+### Breaking
+
+- **Repo renamed** `PeterGuy326/claude-skill-release-sop` → `PeterGuy326/git-skill` — old URLs auto-redirect via GitHub but new clones / installs should use the new URL. Update any pinned `raw.githubusercontent.com` install commands accordingly.
+- **`SKILL.md` moved** from repo root to `skills/release-sop/SKILL.md` — the one-liner curl install command path changed from `/main/SKILL.md` to `/main/skills/release-sop/SKILL.md`.
+- **`install.sh` signature changed** from "no-arg installs the only skill" to "takes a skill name or `--all`" — old `./install.sh` invocation now errors and prints usage; use `./install.sh release-sop` to keep prior behavior.
+
+### Changed
+
+- **`README.md` rewritten** to introduce the repo as a skill collection — includes a roadmap table for planned skills, a layout section, and updated install paths.
+- **`install.sh` rewritten** to support multi-skill installs (`--all`, `--list`, `<skill-name>`) and both user / project scopes — fails fast with usage hint and skill list when called with no args.
+- **GitHub repo description** updated to reflect collection positioning.
+
+### Migration
+
+If you installed v0.1.0:
+
+```bash
+# Update local clone (only needed if you keep a local working copy):
+cd <your-local-clone>
+git remote set-url origin https://github.com/PeterGuy326/git-skill.git
+git pull --ff-only
+
+# Update one-liner install (the SKILL itself is unchanged behaviorally):
+mkdir -p ~/.claude/skills/release-sop && \
+  curl -fsSL https://raw.githubusercontent.com/PeterGuy326/git-skill/main/skills/release-sop/SKILL.md \
+  -o ~/.claude/skills/release-sop/SKILL.md
+```
+
+The installed `~/.claude/skills/release-sop/SKILL.md` file is **identical** to v0.1.0 — no behavior change inside the skill, only repo-level reorganization.
+
 ## [0.1.0] - 2026-05-09
 
 Initial public release of `release-sop`, a Claude Code skill that drives any GitHub-hosted project through a 7-stage release SOP with hard gates.
