@@ -1,9 +1,9 @@
 ---
 name: release-sop
-description: 通用 GitHub 项目发布 SOP 引导 skill。按"PR准入回放 → Pre-flight → CHANGELOG → 打Tag → 盯盘 → 发布后验证 → DOD"七步走，每步有 gate、命令、失败处置；自动识别项目类型（Go/Node/Python/Rust/Docker）适配命令。Triggers on '/release-sop', 'release sop', '发版sop', '走发版流程', '帮我发版', 'cut a release', 'tag and release'.
+description: 通用 Git 项目发布 SOP 引导 skill（适用于 GitHub / GitLab / Gitea 等 Git 主机；可装入 Claude Code / Qoder / Cursor / 通用 LLM 等任意 AI Agent）。按"PR准入回放 → Pre-flight → CHANGELOG → 打Tag → 盯盘 → 发布后验证 → DOD"七步走，每步有 gate、命令、失败处置；自动识别项目类型（Go/Node/Python/Rust/Docker）适配命令。Triggers on '/release-sop', 'release sop', '发版sop', '走发版流程', '帮我发版', 'cut a release', 'tag and release'.
 ---
 
-# Release SOP — 通用 GitHub 发布流程
+# Release SOP — 通用 Git 项目发布流程（多 Agent 兼容）
 
 ## 触发条件
 

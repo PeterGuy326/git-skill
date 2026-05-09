@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-05-10
+
+Repo and `release-sop` skill repositioned from "Claude Code-only" into **agent-agnostic**: the SKILL is a markdown behavior contract that loads into Claude Code, Qoder, Cursor, ChatGPT Custom GPT, or any LLM. Same contract, different load mechanism.
+
+### Changed
+
+- **`skills/release-sop/SKILL.md` frontmatter & H1 generalized** — description now reads "通用 Git 项目发布 SOP 引导 skill（适用于 GitHub / GitLab / Gitea 等 Git 主机；可装入 Claude Code / Qoder / Cursor / 通用 LLM 等任意 AI Agent）"; H1 changed from "通用 GitHub 发布流程" to "通用 Git 项目发布流程（多 Agent 兼容）". Body of the SOP unchanged — the steps, gates, red lines, runbook stay identical.
+- **`README.md` rewritten** — opening positions repo as agent-agnostic skill collection; new "Why agent-agnostic?" section; install section now leads with a 5-row Agent × install-path × trigger × notes table (Claude Code / Qoder / Cursor / Custom GPT / generic LLM); Claude Code commands kept as the quickstart subsection; companion blog post link updated to `/git-release-sop/`.
+- **Companion blog post URL changed** — companion post slug renamed from `/github-release-sop/` to `/git-release-sop/` to match the broadened positioning. Old URL retains a meta-refresh redirect on the blog side.
+
+### Notes
+
+- This is **non-breaking for existing installs**: anyone who installed v0.2.0's `~/.claude/skills/release-sop/SKILL.md` keeps working — the skill body and its `name:` frontmatter are unchanged. Only the description text and H1 in the file's metadata-zone were touched.
+- `install.sh` continues to target the Claude Code skills directory layout. Per-target install (Qoder / Cursor / etc.) is on the roadmap but not in this version.
+
 ## [0.2.0] - 2026-05-10
 
 Repo repositioned from a single-skill project (`claude-skill-release-sop`) into a **multi-skill collection** (`git-skill`) for Git-host workflows (GitHub / GitLab / Gitea). `release-sop` is the first skill; `pr-review`, `issue-triage`, `changelog-bot`, `hotfix-flow` are planned.
