@@ -13,7 +13,7 @@ A skill here is just a markdown behavior contract. It **doesn't depend on any si
 | Skill | Status | What it does |
 |---|---|---|
 | [`release-sop`](./skills/release-sop) | ✅ shipped | Drives any project through a 7-stage release SOP (PR DoR replay → Pre-flight → CHANGELOG → tag → CI watch → smoke → DOD). Auto-detects Go / Node / Python / Rust / Docker. |
-| `pr-review` | 🚧 planned | Structured PR review against a checklist (interface change, test coverage, CHANGELOG, security review trigger). |
+| [`pr-review`](./skills/pr-review) | ✅ shipped | Structured 8-stage PR review SOP — context load → DoR meta check → change classification & interface-impact → line-level code review → test coverage → CHANGELOG entry → security-review trigger → `APPROVE` / `REQUEST_CHANGES` / `BLOCK` verdict. Hard gates, no skip path, no "fix it in a follow-up". GitHub / GitLab / Gitea. |
 | `issue-triage` | 🚧 planned | Triage incoming issues into severity / area / actionable-or-not, with a one-line written rationale. |
 | `changelog-bot` | 🚧 planned | Walk a PR's diff and propose a Keep-a-Changelog entry under the right section. |
 | `hotfix-flow` | 🚧 planned | Cherry-pick-only hotfix branch flow with forward-merge enforcement back to main. |
@@ -49,9 +49,15 @@ Each skill is one self-contained `skills/<skill>/SKILL.md`. The install path dif
 **One-liner per skill**:
 
 ```bash
+# release-sop
 mkdir -p ~/.claude/skills/release-sop && \
   curl -fsSL https://raw.githubusercontent.com/PeterGuy326/git-skill/main/skills/release-sop/SKILL.md \
   -o ~/.claude/skills/release-sop/SKILL.md
+
+# pr-review
+mkdir -p ~/.claude/skills/pr-review && \
+  curl -fsSL https://raw.githubusercontent.com/PeterGuy326/git-skill/main/skills/pr-review/SKILL.md \
+  -o ~/.claude/skills/pr-review/SKILL.md
 ```
 
 **Multi-skill install via `install.sh`**:
@@ -88,6 +94,15 @@ Each skill defines its own triggers in its `SKILL.md` frontmatter. For example, 
 | `cut a release` / `tag and release` | English natural language |
 | `走发版流程` | Chinese natural language |
 
+And `pr-review` triggers on:
+
+| Trigger | Effect |
+|---|---|
+| `/pr-review` | Explicit invocation (Claude Code) |
+| `review #123` | Implicit: reviews that PR / MR by number |
+| `review this PR` / `can this MR merge?` | English natural language |
+| `帮我看下这个 PR` / `过一下这个 PR` | Chinese natural language |
+
 See each skill's own `SKILL.md` for full trigger lists and behavior contracts. Non-Claude agents trigger via natural language in their own way; the contract handles the rest.
 
 ## Repo layout
@@ -99,8 +114,10 @@ git-skill/
 ├── install.sh                      multi-skill installer
 ├── LICENSE                         MIT
 └── skills/
-    └── release-sop/                one directory per skill
-        └── SKILL.md                self-contained: frontmatter + behavior contract
+    ├── release-sop/                one directory per skill
+    │   └── SKILL.md                self-contained: frontmatter + behavior contract
+    └── pr-review/
+        └── SKILL.md
 ```
 
 Each skill directory is self-contained — copy `SKILL.md` into your agent's appropriate path (see the install table above) and you're done. The repo just bundles them.
