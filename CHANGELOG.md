@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-05-10
+
+Community-health files added — `CONTRIBUTING.md` and `SECURITY.md`. No skill changes; these are the files the skills already referenced (`pr-review` Step 1/Step 6, `issue-triage` Step 0/Step 1, `hotfix-flow`, `release-sop` Step 2). Patch release.
+
 ### Added
 
 - **`CONTRIBUTING.md` — contributor guide** — codifies the two hard rules (one skill per directory, ecosystem-agnostic core), what shipping a new skill entails (`SKILL.md` + `examples/<name>-demo.md` + README rows + CHANGELOG entry; `install.sh` auto-discovers), the PR conventions `pr-review` checks (title `type(scope): summary`, What/Why + linked issue, tests/CHANGELOG/docs same-PR, CHANGELOG goes in `[Unreleased]` not a tag commit — pointer to `changelog-bot`, Breaking + migration line, the security flag), local-testing steps (`./install.sh <skill>` → restart Claude Code), and the release / hotfix procedure (`release-sop` / `hotfix-flow`; tag is the only release trigger; `main` is protected, all changes via PR). Previously these rules lived only as a two-line section in the README.
