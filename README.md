@@ -20,6 +20,8 @@ A skill here is just a markdown behavior contract. It **doesn't depend on any si
 
 > Want one of the planned skills sooner, or have a procedure you'd like encoded? Open an issue.
 
+> See [`examples/pr-review-demo.md`](./examples/pr-review-demo.md) for a worked `pr-review` transcript — the 8 steps run against a PR, ending in `REQUEST_CHANGES`, then flipping to `APPROVE` after fixes.
+
 ## Why a collection?
 
 Single-skill repos rot fast — each skill is one file, install is trivial, but you end up with 5+ repos to maintain when only one of them is actually special. This repo treats Git-host workflows as a **family** of related procedures sharing the same hard-gate philosophy:
@@ -113,11 +115,13 @@ git-skill/
 ├── CHANGELOG.md                    repo-level release notes (one entry per skill ship/bump)
 ├── install.sh                      multi-skill installer
 ├── LICENSE                         MIT
-└── skills/
-    ├── release-sop/                one directory per skill
-    │   └── SKILL.md                self-contained: frontmatter + behavior contract
-    └── pr-review/
-        └── SKILL.md
+├── skills/
+│   ├── release-sop/                one directory per skill
+│   │   └── SKILL.md                self-contained: frontmatter + behavior contract
+│   └── pr-review/
+│       └── SKILL.md
+└── examples/                       worked transcripts / project-specific recipes (not loaded by agents)
+    └── pr-review-demo.md           pr-review walking a PR end-to-end, REQUEST_CHANGES → APPROVE
 ```
 
 Each skill directory is self-contained — copy `SKILL.md` into your agent's appropriate path (see the install table above) and you're done. The repo just bundles them.
