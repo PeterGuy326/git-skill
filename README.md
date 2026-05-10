@@ -153,6 +153,8 @@ See each skill's own `SKILL.md` for full trigger lists and behavior contracts. N
 ```
 git-skill/
 ├── README.md                       this file
+├── CONTRIBUTING.md                 PR conventions, local testing, release/hotfix procedure
+├── SECURITY.md                     supported versions + how to report a vulnerability (privately)
 ├── CHANGELOG.md                    repo-level release notes (one entry per skill ship/bump)
 ├── install.sh                      multi-skill installer
 ├── LICENSE                         MIT
@@ -194,12 +196,12 @@ The `release-sop` skill was originally distilled while writing release procedure
 
 ## Contributing
 
-PRs welcome. Two rules:
+PRs welcome. Two hard rules:
 
 1. **One skill per directory.** A skill is one self-contained `SKILL.md` plus optional fixtures. Don't cross-import between skills — they should compose at the AI's runtime, not at file load time.
 2. **Keep the core ecosystem-agnostic.** Project-specific recipes go under `examples/` or as forks. The core flow shouldn't assume a particular package manager, CI platform, or repo host.
 
-Open an issue first if you're proposing a new skill so we can discuss scope and trigger naming.
+Open an issue first if you're proposing a new skill so we can discuss scope and trigger naming. `main` is a protected branch — all changes land via PR (squash merge, linear history). Full PR conventions, local-testing steps, and the release / hotfix procedure are in [`CONTRIBUTING.md`](./CONTRIBUTING.md); vulnerability reporting (don't open a public issue) is in [`SECURITY.md`](./SECURITY.md).
 
 ## License
 
