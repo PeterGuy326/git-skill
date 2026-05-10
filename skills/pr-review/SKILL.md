@@ -119,7 +119,7 @@ Gate：该有词条却没有、或词条无颗粒度 → 结论档位 ≥ `🔁 
 
 | 结论 | 含义 | 何时给 |
 |---|---|---|
-| ✅ APPROVE | 可以合 | Step 1–6 全过，无 `[blocking]` 项，无未过 gate，CI 全绿（或绿后自动转 approve），安全无触发或已走流程 |
+| ✅ APPROVE | 可以合 | Step 1–6 全过，无 `[blocking]` 项，无未过 gate，CI 全绿（CI 还在跑则先标 `⏳ pending CI`，绿后再定档），安全无触发或已走流程 |
 | 🔁 REQUEST_CHANGES | 改完再看 | 存在**可修复**的未过项：元信息不全 / 缺文档 / 缺测试说明 / 缺 CHANGELOG / 有 `[blocking]` 代码问题 |
 | ⛔ BLOCK | 现在不能合 | CI 红 / 关键 job 失败 / 功能 PR 零测试 / 破坏性变更未标 breaking / 命中安全触发项但未走安全流程 / PR 打错目标分支到受保护分支 |
 
