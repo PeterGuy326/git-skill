@@ -14,13 +14,13 @@ A skill here is just a markdown behavior contract. It **doesn't depend on any si
 |---|---|---|
 | [`release-sop`](./skills/release-sop) | ✅ shipped | Drives any project through a 7-stage release SOP (PR DoR replay → Pre-flight → CHANGELOG → tag → CI watch → smoke → DOD). Auto-detects Go / Node / Python / Rust / Docker. |
 | [`pr-review`](./skills/pr-review) | ✅ shipped | Structured 8-stage PR review SOP — context load → DoR meta check → change classification & interface-impact → line-level code review → test coverage → CHANGELOG entry → security-review trigger → `APPROVE` / `REQUEST_CHANGES` / `BLOCK` verdict. Hard gates, no skip path, no "fix it in a follow-up". GitHub / GitLab / Gitea. |
+| [`changelog-bot`](./skills/changelog-bot) | ✅ shipped | Turns a PR / commit-range / diff into a precise Keep-a-Changelog entry — walks the diff, classifies into the right section (Breaking / Added / Changed / Fixed / Security…), drafts "phenomenon + root cause + fix + impact" bullets with PR refs, places them at the top of `[Unreleased]`. Proposes only — never commits. GitHub / GitLab / Gitea. |
 | `issue-triage` | 🚧 planned | Triage incoming issues into severity / area / actionable-or-not, with a one-line written rationale. |
-| `changelog-bot` | 🚧 planned | Walk a PR's diff and propose a Keep-a-Changelog entry under the right section. |
 | `hotfix-flow` | 🚧 planned | Cherry-pick-only hotfix branch flow with forward-merge enforcement back to main. |
 
 > Want one of the planned skills sooner, or have a procedure you'd like encoded? Open an issue.
 
-> See [`examples/pr-review-demo.md`](./examples/pr-review-demo.md) for a worked `pr-review` transcript — the 8 steps run against a PR, ending in `REQUEST_CHANGES`, then flipping to `APPROVE` after fixes.
+> See [`examples/pr-review-demo.md`](./examples/pr-review-demo.md) for a worked `pr-review` transcript (8 steps → `REQUEST_CHANGES` → `APPROVE`), and [`examples/changelog-bot-demo.md`](./examples/changelog-bot-demo.md) for a worked `changelog-bot` transcript (a vague `fix a bug` PR → a granular `Fixed` + `Security` entry).
 
 ## Why a collection?
 
@@ -60,6 +60,11 @@ mkdir -p ~/.claude/skills/release-sop && \
 mkdir -p ~/.claude/skills/pr-review && \
   curl -fsSL https://raw.githubusercontent.com/PeterGuy326/git-skill/main/skills/pr-review/SKILL.md \
   -o ~/.claude/skills/pr-review/SKILL.md
+
+# changelog-bot
+mkdir -p ~/.claude/skills/changelog-bot && \
+  curl -fsSL https://raw.githubusercontent.com/PeterGuy326/git-skill/main/skills/changelog-bot/SKILL.md \
+  -o ~/.claude/skills/changelog-bot/SKILL.md
 ```
 
 **Multi-skill install via `install.sh`**:
@@ -105,6 +110,15 @@ And `pr-review` triggers on:
 | `review this PR` / `can this MR merge?` | English natural language |
 | `帮我看下这个 PR` / `过一下这个 PR` | Chinese natural language |
 
+And `changelog-bot` triggers on:
+
+| Trigger | Effect |
+|---|---|
+| `/changelog-bot` | Explicit invocation (Claude Code) |
+| `changelog for #123` | Implicit: drafts the entry for that PR / MR |
+| `propose a changelog entry` / `write a changelog entry` | English natural language |
+| `写个 changelog 词条` / `这个 PR 的 changelog 怎么写` | Chinese natural language |
+
 See each skill's own `SKILL.md` for full trigger lists and behavior contracts. Non-Claude agents trigger via natural language in their own way; the contract handles the rest.
 
 ## Repo layout
@@ -118,10 +132,13 @@ git-skill/
 ├── skills/
 │   ├── release-sop/                one directory per skill
 │   │   └── SKILL.md                self-contained: frontmatter + behavior contract
-│   └── pr-review/
+│   ├── pr-review/
+│   │   └── SKILL.md
+│   └── changelog-bot/
 │       └── SKILL.md
 └── examples/                       worked transcripts / project-specific recipes (not loaded by agents)
-    └── pr-review-demo.md           pr-review walking a PR end-to-end, REQUEST_CHANGES → APPROVE
+    ├── pr-review-demo.md           pr-review walking a PR end-to-end, REQUEST_CHANGES → APPROVE
+    └── changelog-bot-demo.md       changelog-bot turning a vague "fix a bug" PR into a granular entry
 ```
 
 Each skill directory is self-contained — copy `SKILL.md` into your agent's appropriate path (see the install table above) and you're done. The repo just bundles them.
