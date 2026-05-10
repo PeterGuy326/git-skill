@@ -16,11 +16,11 @@ A skill here is just a markdown behavior contract. It **doesn't depend on any si
 | [`pr-review`](./skills/pr-review) | ✅ shipped | Structured 8-stage PR review SOP — context load → DoR meta check → change classification & interface-impact → line-level code review → test coverage → CHANGELOG entry → security-review trigger → `APPROVE` / `REQUEST_CHANGES` / `BLOCK` verdict. Hard gates, no skip path, no "fix it in a follow-up". GitHub / GitLab / Gitea. |
 | [`changelog-bot`](./skills/changelog-bot) | ✅ shipped | Turns a PR / commit-range / diff into a precise Keep-a-Changelog entry — walks the diff, classifies into the right section (Breaking / Added / Changed / Fixed / Security…), drafts "phenomenon + root cause + fix + impact" bullets with PR refs, places them at the top of `[Unreleased]`. Proposes only — never commits. GitHub / GitLab / Gitea. |
 | [`issue-triage`](./skills/issue-triage) | ✅ shipped | 7-stage issue triage SOP — context load → type classification → actionability gate (accepted / needs-repro / needs-info / duplicate / out-of-scope / …) → area labels → severity rubric (bugs, S1–S4) → written verdict with a one-line rationale on the issue → handoff / batch mode. Security reports routed to `SECURITY.md`, never triaged in the open. GitHub / GitLab / Gitea. |
-| `hotfix-flow` | 🚧 planned | Cherry-pick-only hotfix branch flow with forward-merge enforcement back to main. |
+| [`hotfix-flow`](./skills/hotfix-flow) | ✅ shipped | 8-stage hotfix SOP for a released version that can't wait for the next release — should-we-hotfix gate → fix lands on `main` first → branch off the release tag (or `release/*`) → cherry-pick **only** the fix → CHANGELOG → simplified review → patch tag handed to `release-sop` → **forward-merge back to `main`** (and every intermediate release branch) → DOD. The forward-merge is a hard red line: no merge-back = not done. GitHub / GitLab / Gitea. |
 
-> Want one of the planned skills sooner, or have a procedure you'd like encoded? Open an issue.
+> All five skills are shipped — the Git-host-workflow family (`issue-triage` → `pr-review` → `changelog-bot` → `release-sop`, with `hotfix-flow` as the emergency entry) is complete. Have another procedure you'd like encoded? Open an issue.
 
-> Worked transcripts: [`examples/pr-review-demo.md`](./examples/pr-review-demo.md) (`pr-review`, 8 steps → `REQUEST_CHANGES` → `APPROVE`), [`examples/changelog-bot-demo.md`](./examples/changelog-bot-demo.md) (`changelog-bot`, a vague `fix a bug` PR → a granular `Fixed` + `Security` entry), [`examples/issue-triage-demo.md`](./examples/issue-triage-demo.md) (`issue-triage`, a no-repro bug report → `needs-repro` → `accepted` + `S2`, plus a batch pass).
+> Worked transcripts: [`examples/pr-review-demo.md`](./examples/pr-review-demo.md) (`pr-review`, 8 steps → `REQUEST_CHANGES` → `APPROVE`), [`examples/changelog-bot-demo.md`](./examples/changelog-bot-demo.md) (`changelog-bot`, a vague `fix a bug` PR → a granular `Fixed` + `Security` entry), [`examples/issue-triage-demo.md`](./examples/issue-triage-demo.md) (`issue-triage`, a no-repro bug report → `needs-repro` → `accepted` + `S2`, plus a batch pass), [`examples/hotfix-flow-demo.md`](./examples/hotfix-flow-demo.md) (`hotfix-flow`, an S1 regression in a released version → `v0.4.1` patch → forward-merged back to `main`).
 
 ## Why a collection?
 
@@ -70,6 +70,11 @@ mkdir -p ~/.claude/skills/changelog-bot && \
 mkdir -p ~/.claude/skills/issue-triage && \
   curl -fsSL https://raw.githubusercontent.com/PeterGuy326/git-skill/main/skills/issue-triage/SKILL.md \
   -o ~/.claude/skills/issue-triage/SKILL.md
+
+# hotfix-flow
+mkdir -p ~/.claude/skills/hotfix-flow && \
+  curl -fsSL https://raw.githubusercontent.com/PeterGuy326/git-skill/main/skills/hotfix-flow/SKILL.md \
+  -o ~/.claude/skills/hotfix-flow/SKILL.md
 ```
 
 **Multi-skill install via `install.sh`**:
@@ -133,6 +138,14 @@ And `issue-triage` triggers on:
 | `triage this issue` / `is this actionable?` | English natural language |
 | `分诊 issue` / `帮我 triage 这个 issue` / `过一下 issue 列表` | Chinese natural language |
 
+And `hotfix-flow` triggers on:
+
+| Trigger | Effect |
+|---|---|
+| `/hotfix-flow` | Explicit invocation (Claude Code) |
+| `hotfix` / `cut a hotfix` / `patch release for #123` | Implicit: starts the hotfix flow for that issue / released version |
+| `走 hotfix 流程` / `出个 hotfix` / `紧急修复发版` | Chinese natural language |
+
 See each skill's own `SKILL.md` for full trigger lists and behavior contracts. Non-Claude agents trigger via natural language in their own way; the contract handles the rest.
 
 ## Repo layout
@@ -150,12 +163,15 @@ git-skill/
 │   │   └── SKILL.md
 │   ├── changelog-bot/
 │   │   └── SKILL.md
-│   └── issue-triage/
+│   ├── issue-triage/
+│   │   └── SKILL.md
+│   └── hotfix-flow/
 │       └── SKILL.md
 └── examples/                       worked transcripts / project-specific recipes (not loaded by agents)
     ├── pr-review-demo.md           pr-review walking a PR end-to-end, REQUEST_CHANGES → APPROVE
     ├── changelog-bot-demo.md       changelog-bot turning a vague "fix a bug" PR into a granular entry
-    └── issue-triage-demo.md        issue-triage taking a no-repro bug report → needs-repro → accepted
+    ├── issue-triage-demo.md        issue-triage taking a no-repro bug report → needs-repro → accepted
+    └── hotfix-flow-demo.md         hotfix-flow patching a released version, cherry-pick + forward-merge
 ```
 
 Each skill directory is self-contained — copy `SKILL.md` into your agent's appropriate path (see the install table above) and you're done. The repo just bundles them.
@@ -174,7 +190,7 @@ Companion blog post (full SOP framework + dws case study):
 - Live: [Git Release SOP — 通用 AI Agent 发版副驾手册](https://peterguy326.github.io/git-release-sop/)
 - Source: [`source/_posts/git-release-sop.md`](https://github.com/PeterGuy326/PeterGuy326.github.io/blob/master/source/_posts/git-release-sop.md)
 
-The `release-sop` skill was originally distilled while writing release procedures for the [DingTalk Workspace CLI](https://github.com/DingTalk-Real-AI/dingtalk-workspace-cli) (Go + GoReleaser, ~23 releases in one month). The other planned skills emerged from the same project's issue / PR / hotfix workflows, generalized so they work on any Git-hosted repo regardless of host or stack.
+The `release-sop` skill was originally distilled while writing release procedures for the [DingTalk Workspace CLI](https://github.com/DingTalk-Real-AI/dingtalk-workspace-cli) (Go + GoReleaser, ~23 releases in one month). The other four skills emerged from the same project's issue / PR / changelog / hotfix workflows, generalized so they work on any Git-hosted repo regardless of host or stack.
 
 ## Contributing
 
