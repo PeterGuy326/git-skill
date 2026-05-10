@@ -15,12 +15,12 @@ A skill here is just a markdown behavior contract. It **doesn't depend on any si
 | [`release-sop`](./skills/release-sop) | ✅ shipped | Drives any project through a 7-stage release SOP (PR DoR replay → Pre-flight → CHANGELOG → tag → CI watch → smoke → DOD). Auto-detects Go / Node / Python / Rust / Docker. |
 | [`pr-review`](./skills/pr-review) | ✅ shipped | Structured 8-stage PR review SOP — context load → DoR meta check → change classification & interface-impact → line-level code review → test coverage → CHANGELOG entry → security-review trigger → `APPROVE` / `REQUEST_CHANGES` / `BLOCK` verdict. Hard gates, no skip path, no "fix it in a follow-up". GitHub / GitLab / Gitea. |
 | [`changelog-bot`](./skills/changelog-bot) | ✅ shipped | Turns a PR / commit-range / diff into a precise Keep-a-Changelog entry — walks the diff, classifies into the right section (Breaking / Added / Changed / Fixed / Security…), drafts "phenomenon + root cause + fix + impact" bullets with PR refs, places them at the top of `[Unreleased]`. Proposes only — never commits. GitHub / GitLab / Gitea. |
-| `issue-triage` | 🚧 planned | Triage incoming issues into severity / area / actionable-or-not, with a one-line written rationale. |
+| [`issue-triage`](./skills/issue-triage) | ✅ shipped | 7-stage issue triage SOP — context load → type classification → actionability gate (accepted / needs-repro / needs-info / duplicate / out-of-scope / …) → area labels → severity rubric (bugs, S1–S4) → written verdict with a one-line rationale on the issue → handoff / batch mode. Security reports routed to `SECURITY.md`, never triaged in the open. GitHub / GitLab / Gitea. |
 | `hotfix-flow` | 🚧 planned | Cherry-pick-only hotfix branch flow with forward-merge enforcement back to main. |
 
 > Want one of the planned skills sooner, or have a procedure you'd like encoded? Open an issue.
 
-> See [`examples/pr-review-demo.md`](./examples/pr-review-demo.md) for a worked `pr-review` transcript (8 steps → `REQUEST_CHANGES` → `APPROVE`), and [`examples/changelog-bot-demo.md`](./examples/changelog-bot-demo.md) for a worked `changelog-bot` transcript (a vague `fix a bug` PR → a granular `Fixed` + `Security` entry).
+> Worked transcripts: [`examples/pr-review-demo.md`](./examples/pr-review-demo.md) (`pr-review`, 8 steps → `REQUEST_CHANGES` → `APPROVE`), [`examples/changelog-bot-demo.md`](./examples/changelog-bot-demo.md) (`changelog-bot`, a vague `fix a bug` PR → a granular `Fixed` + `Security` entry), [`examples/issue-triage-demo.md`](./examples/issue-triage-demo.md) (`issue-triage`, a no-repro bug report → `needs-repro` → `accepted` + `S2`, plus a batch pass).
 
 ## Why a collection?
 
@@ -65,6 +65,11 @@ mkdir -p ~/.claude/skills/pr-review && \
 mkdir -p ~/.claude/skills/changelog-bot && \
   curl -fsSL https://raw.githubusercontent.com/PeterGuy326/git-skill/main/skills/changelog-bot/SKILL.md \
   -o ~/.claude/skills/changelog-bot/SKILL.md
+
+# issue-triage
+mkdir -p ~/.claude/skills/issue-triage && \
+  curl -fsSL https://raw.githubusercontent.com/PeterGuy326/git-skill/main/skills/issue-triage/SKILL.md \
+  -o ~/.claude/skills/issue-triage/SKILL.md
 ```
 
 **Multi-skill install via `install.sh`**:
@@ -119,6 +124,15 @@ And `changelog-bot` triggers on:
 | `propose a changelog entry` / `write a changelog entry` | English natural language |
 | `写个 changelog 词条` / `这个 PR 的 changelog 怎么写` | Chinese natural language |
 
+And `issue-triage` triggers on:
+
+| Trigger | Effect |
+|---|---|
+| `/issue-triage` | Explicit invocation (Claude Code) |
+| `triage #123` / `triage the backlog` | Implicit: triages that issue, or batch-triages untriaged ones |
+| `triage this issue` / `is this actionable?` | English natural language |
+| `分诊 issue` / `帮我 triage 这个 issue` / `过一下 issue 列表` | Chinese natural language |
+
 See each skill's own `SKILL.md` for full trigger lists and behavior contracts. Non-Claude agents trigger via natural language in their own way; the contract handles the rest.
 
 ## Repo layout
@@ -134,11 +148,14 @@ git-skill/
 │   │   └── SKILL.md                self-contained: frontmatter + behavior contract
 │   ├── pr-review/
 │   │   └── SKILL.md
-│   └── changelog-bot/
+│   ├── changelog-bot/
+│   │   └── SKILL.md
+│   └── issue-triage/
 │       └── SKILL.md
 └── examples/                       worked transcripts / project-specific recipes (not loaded by agents)
     ├── pr-review-demo.md           pr-review walking a PR end-to-end, REQUEST_CHANGES → APPROVE
-    └── changelog-bot-demo.md       changelog-bot turning a vague "fix a bug" PR into a granular entry
+    ├── changelog-bot-demo.md       changelog-bot turning a vague "fix a bug" PR into a granular entry
+    └── issue-triage-demo.md        issue-triage taking a no-repro bug report → needs-repro → accepted
 ```
 
 Each skill directory is self-contained — copy `SKILL.md` into your agent's appropriate path (see the install table above) and you're done. The repo just bundles them.
