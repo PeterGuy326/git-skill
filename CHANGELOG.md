@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [0.3.0] - 2026-05-10
 
 Repo and `release-sop` skill repositioned from "Claude Code-only" into **agent-agnostic**: the SKILL is a markdown behavior contract that loads into Claude Code, Qoder, Cursor, ChatGPT Custom GPT, or any LLM. Same contract, different load mechanism.
