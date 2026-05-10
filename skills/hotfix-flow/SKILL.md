@@ -94,11 +94,13 @@ hotfix 分支上有 main 没有的 commit（至少那个 CHANGELOG dated 段，�
 
 ```bash
 git switch main && git pull --ff-only
-git merge --no-ff hotfix/vX.Y.$((Z+1))               # main 受保护则改走 PR
+# 默认（允许 merge commit 的仓库）：留一个 merge commit 标记 hotfix 已整合
+git merge --no-ff hotfix/vX.Y.$((Z+1))
+# 若 main 启用 linear history / 受保护（如本仓库自己）：不能 --no-ff，改走 PR 用 rebase 或 squash 合回
 # 解冲突：保留 main 的 [Unreleased] 结构；[X.Y.(Z+1)] dated 段也应进 main 的 CHANGELOG 历史（它是一次真实 release）
 ```
 
-main 受保护、不能直接 merge → 开一个 `merge hotfix vX.Y.(Z+1) back to main` 的 PR。**这个 merge 落地前，hotfix 不算 done**——没 forward-merge 的 hotfix 意味着下个 minor release 静默地把 bug 又带回来。
+main 受保护 / 启用 linear history → 不能直接 `git merge`，开一个 `merge hotfix vX.Y.(Z+1) back to main` 的 PR（rebase/squash 合入）。**这个 merge 落地前，hotfix 不算 done**——没 forward-merge 的 hotfix 意味着下个 minor release 静默地把 bug 又带回来。
 
 > 仓库有多条 live release 分支（`release/1.x`、`release/2.x`…）→ 从 hotfix base 到 main 之间**每一条** release 分支按序 forward-merge，一条都不能跳。
 
@@ -128,7 +130,7 @@ main 受保护、不能直接 merge → 开一个 `merge hotfix vX.Y.(Z+1) back 
 | 仓库 tag-off-main、没 release 分支 | hotfix 分支建在 **tag** 上；"PR" = 打 tag 前对 hotfix 分支的 review |
 | 仓库有多条 live release 分支 | base→main 之间每条 release 分支按序 forward-merge，一条不跳 |
 | 安全 hotfix | 全程走 `SECURITY.md`：私有处置直到 release；release notes 红字 + CVE/advisory 链接 + 播报；Step 5 安全触发判定不省 |
-| main 受保护、不能直接 merge 回去 | Step 7 改成开 "merge hotfix back to main" PR；它合入前 hotfix 不算 done |
+| main 受保护 / 启用 linear history、不能直接 `git merge` 回去 | Step 7 改成开 "merge hotfix back to main" PR（rebase/squash 合入）；它合入前 hotfix 不算 done |
 | 忘了 forward-merge | 最常见的 leak——DOD 的 `git branch --contains` 那条专堵它；没过这条不许说"完成" |
 | 想顺手在 hotfix 里多带点改动 | 不行——cherry-pick only；任何"反正都改了"走正常 PR 进 main |
 | hotfix 后又发现要再 hotfix | 从**新的** `vX.Y.(Z+1)` tag 再起 `hotfix/vX.Y.(Z+2)`，重走全流程；不在旧 hotfix 分支上叠 |
