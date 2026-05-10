@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-05-10
+
+Follow-up to a retrospective `pr-review` pass on #7: the `hotfix-flow` skill's Step 7 no longer prescribes a `git merge --no-ff` forward-merge that a `required_linear_history` / protected `main` (this repo's own, for one) would reject, and the `[0.5.0]`–`[0.7.1]` CHANGELOG entries get the PR references they were missing. No skill *behavior* change beyond the Step 7 wording. Patch release.
+
 ### Fixed
 
 - **`skills/hotfix-flow/SKILL.md` Step 7 no longer prescribes `git merge --no-ff` for repos with linear history** (#11) — the forward-merge step gave `git merge --no-ff hotfix/…` as the default command, which a `required_linear_history` / protected `main` (like this repo's own) rejects; Step 7 and its edge-case row now spell out that on such repos the forward-merge goes through a PR with a rebase/squash merge, keeping `--no-ff` only as the "repo allows merge commits" path. Surfaced by running the `pr-review` skill retrospectively on #7.
