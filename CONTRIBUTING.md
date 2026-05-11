@@ -23,6 +23,7 @@ A skill ships as: `skills/<name>/SKILL.md` (with `name:` frontmatter so Claude C
 - **CHANGELOG**: add your entry to `## [Unreleased]` under the right Keep-a-Changelog section (`Added` / `Changed` / `Fixed` / `Security` / a top-level `Breaking`), as a bold-phenomenon bullet with the PR number — see the `changelog-bot` skill for the format. **Don't** put it in a dated `## [X.Y.Z]` section or a tag commit — cutting the dated section is the release step's job (`release-sop`).
 - **Breaking changes** go under `Breaking` with a migration line, and the PR description must say so.
 - **Anything touching auth / crypto / parsers / dependency bumps / CI secrets**: flag it; see [`SECURITY.md`](./SECURITY.md). Security fixes are *not* filed as ordinary public PRs/issues.
+- **Commit message hygiene** — do **not** include AI co-author trailers in commits or PR bodies. Lines like `Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>`, `Co-authored-by: Claude Code <noreply@anthropic.com>`, or `🤖 Generated with Claude Code` are **rejected** at PR review (see `pr-review` Step 1). AI assistance for drafting / refactoring / debugging is fine — we just don't tag it in the commit history (the repo's authorship semantics stay human-attributed, `git log` / `git blame` doesn't carry an AI noreply email). If your local tooling auto-appends trailers, strip them via `git commit --amend` before pushing, or add a `prepare-commit-msg` git hook that filters them out.
 
 ## Testing a skill locally
 
