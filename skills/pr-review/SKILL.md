@@ -93,6 +93,7 @@ Gate：**无任何测试的功能 PR / CI 红 / 关键 job 失败** → 直接 `
 
 - [ ] 行为 / 接口 / 安全 / 数据 相关 PR → diff 里能看到 `CHANGELOG.md`（或仓库等价文件）新增词条
 - [ ] 词条格式合规（参照仓库现有风格，典型 Keep a Changelog）：以**用户可观测现象**开头加粗、带 PR 号、修 issue 带 `fixes #N`、进对的段（`Breaking` / `Added` / `Changed` / `Fixed` / `Deprecated` / `Removed` / `Security`）
+- [ ] **词条落在 `## [Unreleased]` 段，不在任何已发布的 `## [X.Y.Z]` 段** —— 逐 hunk 核对每个新增 bullet 在 diff 里所属的 `## [...]` heading；落在 `## [Unreleased]` 下 ✅；落在已 dated `## [X.Y.Z]` 下 ⇒ `🔁 REQUEST_CHANGES`。典型成因：PR 的 base 早于一次 `release-sop` Cut PR 合并，3-way merge 把 textual diff 应用到了已"晋升"的 dated 段里 —— GitHub `mergeStateStatus: CLEAN` 只看 textual conflict，**不看 semantic placement**，会漏报。例外两种：(1) 本 PR **本身**是 `release-sop` 的 Cut PR（diff = `[Unreleased]` → `[X.Y.Z]` rename，本就要动 dated 段），(2) `hotfix-flow` 的 patch-tag 分支 PR（diff 落在新建的 `[X.Y.(Z+1)]` 段，见 `hotfix-flow` Step 4）。修法：`gh pr checkout <N> && git rebase main`，把误入 dated 段的 bullet 手挪回 `[Unreleased]`，force-push；或合并后再开一个 `docs(changelog)` 补救 PR 把词条挪回（参考本仓库 PR #17 先例）
 - [ ] **禁止无颗粒度词条**："fix a bug"、"改了点东西"、"优化"——必须是"现象 + 根因 + 修复方式 + 影响面"
 - [ ] 豁免项要写明理由：纯内部重构 / 纯 CI / 纯 docs typo / 纯测试 → 可不写 CHANGELOG，但要在评审结论里写一行"无需 CHANGELOG，因为 …"
 
