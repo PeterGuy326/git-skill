@@ -1,6 +1,6 @@
 ---
 name: release-sop
-description: 通用 Git 项目发布 SOP 引导 skill（适用于 GitHub / GitLab / Gitea 等 Git 主机；可装入 Claude Code / Qoder / Cursor / 通用 LLM 等任意 AI Agent）。按"项目识别 → 身份对齐 → 版本号推荐 → PR准入回放 → Pre-flight → Cut PR → 打Tag → 盯盘 → 发布后验证 → DOD"十步走，每步有 gate、命令、失败处置；自动读取最新 tag + `[Unreleased]` 按 SemVer 推荐 patch / minor / major 让 Captain 反问确认，CHANGELOG 走单独 Cut PR 过队友 review（禁止 self-approve）。Triggers on '/release-sop', 'release sop', '发版sop', '走发版流程', '帮我发版', 'cut a release', 'tag and release'.
+description: 通用 Git 项目发布 SOP 引导 skill（适用于 GitHub / GitLab / Gitea 等 Git 主机；可装入 Claude Code / Qoder / Cursor / 通用 LLM 等任意 AI Agent）。按"项目识别 → 身份对齐 → 版本号推荐 → PR准入回放 → Pre-flight → Cut PR → 打Tag → 盯盘 → 发布后验证 → 群消息公告 → DOD"十一步走，每步有 gate、命令、失败处置；自动读取最新 tag + `[Unreleased]` 按 SemVer 推荐 patch / minor / major 让 Captain 反问确认，CHANGELOG 走单独 Cut PR 过队友 review（禁止 self-approve），发版后强制发结构化群公告（钉钉/飞书/Slack/Teams/Discord）触达 Watch 仓库以外的用户。Triggers on '/release-sop', 'release sop', '发版sop', '走发版流程', '帮我发版', 'cut a release', 'tag and release'.
 ---
 
 # Release SOP — 通用 Git 项目发布流程（多 Agent 兼容）
@@ -232,6 +232,121 @@ HOME=$(mktemp -d) <bin> --help >/dev/null
 <至少 1 个用户最常用功能>
 ```
 
+### Step 7.5 — 群消息公告（发版后告知下游）
+
+GitHub Release 发出 + Step 7 smoke 通过后、Step 8 DOD 闭环之前，向团队 / 用户群发一条**结构化公告**。底层逻辑：**Release 页是技术档案，群消息是触达**。两者内容一致但呈现密度不同 —— 一个给会点 GitHub 的人，一个给只看群的人。少了这步，发版等于只发给了 Watch 仓库的人。
+
+#### 通用模板（项目类型无关）
+
+````markdown
+## 📦 <project> vX.Y.Z 已发布
+
+**<一句话重磅价值 —— 为什么这一版值得用户立刻关心>**
+
+### <product-icon> <核心功能 1>
+
+<2–3 行解释：覆盖什么场景；为什么是 minor / patch / major>
+
+```bash
+<示例命令 1>
+<示例命令 2>
+```
+
+### <product-icon> <核心功能 2>
+
+<同上>
+
+```bash
+<示例命令>
+```
+
+### 底层增强
+
+<不直接对外但支撑上面功能的内部变化，1–3 行；带 PR 号>
+
+---
+
+**Release**：<GitHub Release URL>
+
+**升级**：
+
+```bash
+<自带升级命令，e.g. dws upgrade>             # 已装过的升级路径
+<包管理器全局安装命令，e.g. npm i -g pkg@X>  # 通过包管理器装的路径
+```
+````
+
+#### 格式约束（实战回踩出来的）
+
+- **图标只用渲染干净的几个** —— 钉钉 / 飞书 / Slack / Teams 里 emoji 渲染差异大。建议**仅保留头部 `📦` + 产品级图标**（如 📊 表格 / 📚 知识库 / 🧠 AI / 🔒 安全）；section 头的装饰图标（`⬆️ 升级` / `⚙️ 底层增强` / `📦 Release` 这类）**用加粗代替**，避免不同客户端 fallback 成方块
+- **重磅句必须人话** —— 不要"性能优化 / 体验提升"。说"X 命令现在能用了" / "Y 接口加了 Z 参数" / "上游 W bug 修了"
+- **每个 section 配命令示例** —— 群消息读者多数不会点开 Release 页详读，命令示例是他们 5 秒内判断"我用不用得上"的唯一依据
+- **底层增强单独一段** —— 分清"用户可感知的" vs "为支撑上面那些做的内部改造"；后者带 PR 号让感兴趣的人能跳 GitHub 看
+- **升级命令双路径** —— 项目自带升级机制（`dws upgrade` / `gh extension upgrade` 之类）+ 第三方包管理器全局装路径，覆盖两种典型用户
+
+#### 通道适配
+
+| 通道 | 发法 |
+|---|---|
+| 钉钉 DingTalk | 自定义机器人 webhook，payload `{"msgtype":"markdown","markdown":{"title":"<project> vX.Y.Z","text":"<模板渲染结果>"}}`；HMAC-SHA256 签名按 webhook 配置带 |
+| 飞书 Lark | 自定义机器人 webhook，`msg_type=interactive` 卡片或 `msg_type=text` 文本 |
+| Slack | Incoming Webhook，payload `{"text":"<>"}` 或 Block Kit |
+| Microsoft Teams | Incoming Webhook，payload `{"@type":"MessageCard","text":"<>"}` |
+| Discord | Webhook，payload `{"content":"<>"}` |
+| 纯邮件 / 内网 IM | 手贴模板进去 |
+
+#### 工作示例（dws v1.0.25 实例）
+
+> 取自 DingTalk Workspace CLI v1.0.25 发版实例：钉钉表格 / 知识库两个产品上线，CLI 加了 19 个子命令。仅保留头部 📦 + 产品图标 📊 📚，section 头去掉装饰 emoji 改加粗。
+
+````markdown
+## 📦 dws v1.0.25 已发布
+
+**重磅：钉钉表格 (sheet) 和 知识库 (wiki) 两个产品正式上线 CLI**
+
+### 📊 钉钉表格 `dws sheet`
+
+覆盖 **19 个子命令**，几乎打通钉钉表格的全部数据操作场景 —— 建表、读写、范围操作、行列增删/移动、合并/拆分、查找替换、筛选视图、图片写入。
+
+```bash
+dws sheet create --name "周报模板"
+dws sheet list --node <nodeId>
+dws sheet range read --node <nodeId> --sheet-id <id> --range A1:Z100
+dws sheet append --node <nodeId> --sheet-id <id> --values '[["name","age"],["张三",18]]'
+```
+
+### 📚 知识库 `dws wiki`
+
+知识库空间（space）创建/查询/搜索 + 成员（member）增删改的完整 CRUD。
+
+```bash
+dws wiki space create --name "工程效能"
+dws wiki space search --keyword 知识库
+dws wiki member add --space <id> --user <userId> --role READER
+```
+
+### 底层增强
+
+为支撑 sheet/wiki 的复杂场景（如 sheet 导出的异步 submit → poll → download），底层加了 CLI 别名扩展（`range read` 同时认 `range get`）、严格 JSON transform、多步 pipeline 执行器（#246 / #247）。
+
+---
+
+**Release**：https://github.com/DingTalk-Real-AI/dingtalk-workspace-cli/releases/tag/v1.0.25
+
+**升级**：
+
+```bash
+dws upgrade                              # 已装过 dws
+npm i -g dingtalk-workspace-cli@1.0.25   # 通过 npm 安装
+```
+````
+
+#### Gate
+
+- [ ] 模板填完，Release URL 已粘贴，命令示例**本机至少跑过一遍**
+- [ ] 已发送至 **默认团队群** + **下游用户群**（两者通常不同；缺一不算闭环；纯内部工具仅发团队群）
+- [ ] 观察 1 小时回复 / 表情反馈，无人报 "装不上" / "用不了" 再进 Step 8（如果有 → 回 Step 7 / 故障预案）
+
 ### Step 8 — DOD 闭环
 
 逐项勾选才允许"发布完成"：
@@ -241,7 +356,7 @@ HOME=$(mktemp -d) <bin> --help >/dev/null
 - [ ] 所有目标包仓库可拉取
 - [ ] CHANGELOG 与 release 内容一致
 - [ ] smoke test 在 ≥2 平台通过
-- [ ] 团队/下游已周知
+- [ ] 团队/下游已周知（即 Step 7.5 群消息公告已发，且观察 1 小时无故障反馈）
 - [ ] milestone / 卡片关闭
 
 输出闭环报告（markdown 表格）：版本号、Captain、tag SHA、Release URL、各包仓库 URL、smoke 结果、耗时。
