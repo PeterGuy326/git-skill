@@ -44,6 +44,7 @@ description: 通用 Git 项目 PR 评审 SOP skill（适用于 GitHub / GitLab /
 - [ ] 目标分支正确（不是直接 PR 到受保护的 release/tag 分支，不是 PR 错仓库）
 - [ ] PR 体量可评审（超大 PR：> ~400 行净变更 或 跨 > ~15 文件 → 要求拆分，或要求作者提供"按文件/按提交的改动说明"以便分块过）
 - [ ] commit 历史干净，或作者已声明合并时 squash（不接受一堆 `wip` / `fix typo` / `回退一下` 直接进 main）
+- [ ] **commit message 不含 AI 协作者尾标** —— 如 `Co-Authored-By: Claude` / `Co-authored-by: Claude Code <noreply@anthropic.com>` / `🤖 Generated with Claude Code` 等行**一律不接受**进 main。AI 协助本身没问题，但 commit 历史的作者归属语义必须保持干净（仓库的 `git log` / `git blame` 不挂 AI 作者）。检出方法：`git log --grep='Co-[Aa]uthored-[Bb]y:.*Claude'` 应返回空；混进来的清理参考 `release-sop` 故障预案对应条目（filter-branch / interactive rebase + force-push，需在受保护分支上临时放开 `allow_force_pushes`）
 
 ### Step 2 — 变更分类与接口/行为影响分析
 
