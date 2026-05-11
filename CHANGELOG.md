@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-05-11
+
+`pr-review` gains two new dogfood-driven gates and `CONTRIBUTING.md` codifies the matching rule: (1) **Step 1 DoR rejects AI co-author trailers** in commit messages (`Co-Authored-By: Claude` / `🤖 Generated with Claude Code` etc.) — authorship semantics stay human; (2) **Step 5 rejects CHANGELOG bullets that land in a published `[X.Y.Z]` dated section** — closes the GitHub `mergeStateStatus: CLEAN` blind-spot where 3-way merge applies the textual diff into the post-Cut "wrong" section. Both rules were surfaced by this very release cycle and the regression they caught (PR #16 → PR #17 dogfood) is the canonical evidence. Patch release — `### Changed` only, no Breaking.
+
 ### Changed
 
 - **`skills/pr-review/SKILL.md` Step 5 — new sub-gate: CHANGELOG diff must land in `[Unreleased]`, never an existing dated `[X.Y.Z]` section** (#18) — adds a checkbox under Step 5 instructing the reviewer to inspect every new bullet's `## [...]` heading parent in the diff and return `🔁 REQUEST_CHANGES` if any bullet lands inside a published dated section. Documents the typical cause (PR base predates a `release-sop` Cut PR merge → GitHub 3-way merge applies the textual diff to the now-"wrong" section), the `mergeStateStatus: CLEAN` blind-spot (only checks textual conflict, not semantic placement), the two legitimate exceptions (the `release-sop` Cut PR itself; the `hotfix-flow` patch-tag-branch PR landing in its newly-created `[X.Y.(Z+1)]` section), and two recovery recipes (`gh pr checkout && git rebase main` before merge, or a follow-up `docs(changelog)` move-PR after merge — cf. this repo's PR #17 dogfood precedent). Closes the gap surfaced by the PR #16 → PR #17 dogfood: previously Step 5 only checked section *type* (`Added` / `Changed` / `Fixed` / …) but not section *placement* (`[Unreleased]` vs dated).
